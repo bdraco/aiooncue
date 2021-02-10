@@ -2,7 +2,7 @@
 
 __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 DEFAULT_REQUEST_TIMEOUT = 15
