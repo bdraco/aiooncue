@@ -119,11 +119,8 @@ class Oncue:
                 value = sensor["value"]
                 name = sensor["name"]
                 unit = None
-                if (
-                    isinstance(value, str)
-                    and len(sensor["displayvalue"]) > len(value) + 1
-                ):
-                    unit = sensor["displayvalue"][len(value) + 1]
+                if len(sensor["displayvalue"]) > len(str(value)) + 1:
+                    unit = sensor["displayvalue"][len(str(value)) + 1 :]
                 sensors[name] = OncueSensor(
                     name=name,
                     display_name=sensor["displayname"],
