@@ -44,6 +44,7 @@ class OncueSensor:
     name: str
     display_name: str
     value: str
+    display_value: str
     unit: str | None
 
 
@@ -127,6 +128,7 @@ class Oncue:
                     name=name,
                     display_name=sensor["displayname"],
                     value=sensor["value"],
+                    display_value=sensor["displayvalue"],
                     unit=unit,
                 )
             if (
