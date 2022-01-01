@@ -17,6 +17,11 @@ DEVICE_DETAILS_PARAMETERS = (
     "[2,3,4,6,7,11,18,20,32,55,56,60,69,93,102,113,114,115,864,870,872,1671]"
 )
 
+ALL_DEVICES_PARAMETERS = (
+    "[2,3,4,6,7,11,18,20,32,55,56,60,69,91,93,102,113,114,115,549,864,870,872,1671]"
+)
+
+
 LOGIN_FAILED_CODES = {0, 1200}
 
 LOGIN_ENDPOINT = "/users/connect"
@@ -70,6 +75,17 @@ class Oncue:
             raise LoginFailedException(self._auth_invalid)
 
         self._sessionkey = login_data["sessionkey"]
+
+    async def async_list_devices_with_params(self):
+        """Call api to list devices."""
+        return await self._get_authenticated(
+            LIST_DEVICES_ENDPOINT,
+            {
+                "events": "active",
+                "showperipheraldetails": "true",
+                "parameters": ALL_DEVICES_PARAMETERS,
+            },
+        )
 
     async def async_list_devices(self):
         """Call api to list devices"""
