@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import aiohttp
+
 __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
 __version__ = "0.2.9"
@@ -65,7 +67,13 @@ class LoginFailedException(Exception):
 class Oncue:
     """Async oncue api."""
 
-    def __init__(self, username, password, websession, timeout=DEFAULT_REQUEST_TIMEOUT):
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        websession: aiohttp.ClientSession,
+        timeout: int = DEFAULT_REQUEST_TIMEOUT,
+    ):
         """Create oncue async api object."""
         self._websession = websession
         self._timeout = timeout
@@ -73,7 +81,7 @@ class Oncue:
         self._password = password
         self._auth_invalid = 0
 
-    async def _get(self, endpoint, params=None):
+    async def _get(self, endpoint: str, params=None) -> dict:
         """Make a get request."""
         response = await self._websession.request(
             "GET",
@@ -83,7 +91,7 @@ class Oncue:
         )
         return await response.json()
 
-    async def _get_authenticated(self, endpoint, params=None):
+    async def _get_authenticated(self, endpoint: str, params=None) -> dict:
         if self._auth_invalid:
             raise LoginFailedException(self._auth_invalid)
 
@@ -95,7 +103,9 @@ class Oncue:
             self._auth_invalid = data["message"]
             await self.async_login()
 
-    async def async_login(self):
+        raise LoginFailedException(self._auth_invalid)
+
+    async def async_login(self) -> None:
         """Call api to login"""
         login_data = await self._get(
             LOGIN_ENDPOINT, {"username": self._username, "password": self._password}
