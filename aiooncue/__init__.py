@@ -7,7 +7,7 @@ import aiohttp
 
 __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
-__version__ = "0.2.9"
+__version__ = "0.3.0"
 
 
 REQUIRED_DEVICE_KEYS = {
