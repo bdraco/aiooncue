@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
-__version__ = "0.2.8"
+__version__ = "0.2.9"
 
 
 REQUIRED_DEVICE_KEYS = {
