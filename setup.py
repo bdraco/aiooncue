@@ -40,6 +40,7 @@ setup(
     license="Apache Software License 2.0",
     long_description=readme + "\n\n" + history,
     include_package_data=True,
+    package_data={"aiooncue": ["py.typed"]},
     keywords="aiooncue",
     name="aiooncue",
     packages=find_packages(include=["aiooncue", "aiooncue.*"]),
