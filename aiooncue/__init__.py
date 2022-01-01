@@ -1,9 +1,21 @@
 """Top-level package for Async Oncue."""
+from __future__ import annotations
+
+from dataclasses import dataclass
 
 __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
 __version__ = "0.2.2"
 
+
+REQUIRED_DEVICE_KEYS = {
+    "displayname",
+    "devicestate",
+    "productname",
+    "version",
+    "serialnumber",
+}
+REQUIRED_DEVICE_SENSOR_KEYS = {"FirmwareVersion", "GensetModelNumberSelect"}
 
 DEFAULT_REQUEST_TIMEOUT = 15
 
@@ -25,6 +37,24 @@ ALL_DEVICES_PARAMETERS = (
 LOGIN_FAILED_CODES = {0, 1200}
 
 LOGIN_ENDPOINT = "/users/connect"
+
+
+@dataclass
+class OncueSensor:
+    name: str
+    display_name: str
+    value: str
+    unit: str | None
+
+
+@dataclass
+class OncueDevice:
+    name: str
+    state: str
+    product_name: str
+    hardware_version: str
+    serial_number: str
+    sensors: dict[str, OncueSensor]
 
 
 class LoginFailedException(Exception):
@@ -75,6 +105,44 @@ class Oncue:
             raise LoginFailedException(self._auth_invalid)
 
         self._sessionkey = login_data["sessionkey"]
+
+    async def async_fetch_all(self) -> dict[str, OncueDevice]:
+        """Fetch all devices."""
+        devices = await self.async_list_devices_with_params()
+        indexed_devices: dict[str, OncueDevice] = {}
+        for device in devices:
+            if REQUIRED_DEVICE_KEYS.intersection(device) != REQUIRED_DEVICE_KEYS:
+                continue
+            sensors: dict[str, OncueSensor] = {}
+            for sensor in device["parameters"]:
+                value = sensor["value"]
+                name = sensor["name"]
+                unit = None
+                if (
+                    isinstance(value, str)
+                    and len(sensor["displayvalue"]) > len(value) + 1
+                ):
+                    unit = sensor["displayvalue"][len(value) + 1]
+                sensors[name] = OncueSensor(
+                    name=name,
+                    display_name=sensor["displayname"],
+                    value=sensor["value"],
+                    unit=unit,
+                )
+            if (
+                REQUIRED_DEVICE_SENSOR_KEYS.intersection(sensors)
+                != REQUIRED_DEVICE_SENSOR_KEYS
+            ):
+                continue
+            indexed_devices[device["id"]] = OncueDevice(
+                name=device["displayname"],
+                state=device["devicestate"],
+                product_name=device["productname"],
+                hardware_version=device["version"],
+                serial_number=device["serialnumber"],
+                sensors=sensors,
+            )
+        return indexed_devices
 
     async def async_list_devices_with_params(self):
         """Call api to list devices."""
