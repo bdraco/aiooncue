@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 
 import aiohttp
-import json
 
 __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
