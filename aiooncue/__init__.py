@@ -23,6 +23,8 @@ DEFAULT_REQUEST_TIMEOUT = 15
 
 BASE_ENDPOINT = "https://api.kohler.com/krm/v1"
 
+COMMAND_ENDPOINT = "/devices/command"
+
 LIST_DEVICES_ENDPOINT = "/devices/listdevices"
 LIST_DEVICES_PARAMETERS = "[4,11,60,69,102,91,114,115,549]"
 
@@ -175,9 +177,32 @@ class Oncue:
             },
         )
 
-    async def async_device_details(self, device):
+    async def async_device_details(self, device: str) -> None:
         """Call api to get device devices"""
         return await self._get_authenticated(
             LIST_DEVICES_ENDPOINT,
             {"device": device, "parameters": DEVICE_DETAILS_PARAMETERS},
+        )
+
+    async def async_start_loaded_full_speed_exercise(self, device: str) -> None:
+        """Call api to stat a loaded full speed exercise."""
+        await self._async_do_action(device, "startloadedfullspeedexercise")
+
+    async def async_start_unloaded_full_speed_exercise(self, device: str) -> None:
+        """Call api to stat an unloaded full speed exercise."""
+        await self._async_do_action(device, "startunloadedfullspeedexercise")
+
+    async def async_start_unloaded_cycle_exercise(self, device: str) -> None:
+        """Call api to stat an unloaded cycle exercise."""
+        await self._async_do_action(device, "startunloadedcycleexercise")
+
+    async def async_end_exercise(self, device: str) -> None:
+        """Call api to end an exercise."""
+        await self._async_do_action(device, "endexercise")
+
+    async def _async_do_action(self, device: str, action: str) -> None:
+        """Call api to do an action."""
+        return await self._get_authenticated(
+            LIST_DEVICES_ENDPOINT,
+            {"device": device, "service": "doaction", "value": action},
         )
