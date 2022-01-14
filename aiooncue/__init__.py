@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 
 import aiohttp
 
@@ -9,6 +10,7 @@ __author__ = """J. Nick Koston"""
 __email__ = "nick@koston.org"
 __version__ = "0.3.0"
 
+from .const import NAME_TO_SENSOR_ID
 
 REQUIRED_DEVICE_KEYS = {
     "displayname",
@@ -31,10 +33,45 @@ DEVICE_DETAILS_PARAMETERS = (
     "[2,3,4,6,7,11,18,20,32,55,56,60,69,93,102,113,114,115,864,870,872,1671]"
 )
 
-ALL_DEVICES_PARAMETERS = (
-    "[2,3,4,6,7,11,18,20,32,55,56,60,69,91,93,102,113,114,115,549,864,870,872,1671]"
-)
+ALL_DETAILS_NAMES = [
+    "Controller Type",  # 2
+    "Current Firmware",  # 3
+    "Engine Speed",  # 4
+    "Engine Target Speed",  # 5
+    "Engine Oil Pressure",  # 6
+    "Battery Voltage",  # 11,
+    "Lube Oil Temperature",  # 18,
+    "Generator Controller Temperature",  # 20,
+    "Engine Compartment Temperature",  # 32,
+    "Generator True Percent Of Rated Power",  # 56
+    "Generator Voltage AB",  # 57
+    "Generator Voltage Average Line To Line",  # 60
+    "Generator Current Average",  # 68
+    "Generator Frequency",  # 69
+    "Genset Model Number Select",  # 91
+    "Generator Serial Number",  # 93
+    "Generator Controller Serial Number",  # 95
+    "Generator Controller Clock Time",  # 113,
+    "Generator Controller Total Operation Time",  # 114,
+    "Engine Total Run Time",  # 115,
+    "Engine Total Run Time Loaded",  # 116,
+    "Engine Total Number Of Starts",  # 118,
+    "Genset Total Energy",  # 119   -- note that this can be 1.1986518E7
+    "Ats Contactor Position",  # 549
+    "Ats Sources Available",  # 550,
+    "Source1 Voltage Average Line To Line",  # 588,
+    "Source2 Voltage Average Line To Line",  # 623,
+    "IP Address",  # 864,
+    "Mac Address",  # 869
+    "Connected Server IP Address",  # 870
+    "Network Connection Established",  # 872
+    "Serial Number",  # 908
+    "Latest Firmware",  # 1671
+]
 
+ALL_DEVICES_PARAMETERS = json.dumps(
+    [[NAME_TO_SENSOR_ID[name] for name in ALL_DETAILS_NAMES]], separators=(",", ":")
+)
 
 LOGIN_FAILED_CODES = {0, 1200}
 
