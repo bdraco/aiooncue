@@ -41,10 +41,12 @@ ALL_DETAILS_NAMES = [
     "Engine Speed",  # 4
     "Engine Target Speed",  # 5
     "Engine Oil Pressure",  # 6
-    "Battery Voltage",  # 11,
-    "Lube Oil Temperature",  # 18,
-    "Generator Controller Temperature",  # 20,
-    "Engine Compartment Temperature",  # 32,
+    "Engine Coolant Temperature",  # 7
+    "Battery Voltage",  # 11
+    "Lube Oil Temperature",  # 18
+    "Generator Controller Temperature",  # 20
+    "Engine Compartment Temperature",  # 32
+    "Generator True Total Power",  # 55
     "Generator True Percent Of Rated Power",  # 56
     "Generator Voltage AB",  # 57
     "Generator Voltage Average Line To Line",  # 60
@@ -53,6 +55,7 @@ ALL_DETAILS_NAMES = [
     "Genset Model Number Select",  # 91
     "Generator Serial Number",  # 93
     "Generator Controller Serial Number",  # 95
+    "Generator State",  # 102
     "Generator Controller Clock Time",  # 113,
     "Generator Controller Total Operation Time",  # 114,
     "Engine Total Run Time",  # 115,
