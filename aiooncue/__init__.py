@@ -177,7 +177,7 @@ class Oncue:
             },
         )
 
-    async def async_device_details(self, device: str) -> None:
+    async def async_device_details(self, device: str) -> dict:
         """Call api to get device devices"""
         return await self._get_authenticated(
             LIST_DEVICES_ENDPOINT,
@@ -202,7 +202,7 @@ class Oncue:
 
     async def _async_do_action(self, device: str, action: str) -> None:
         """Call api to do an action."""
-        return await self._get_authenticated(
+        await self._get_authenticated(
             LIST_DEVICES_ENDPOINT,
             {"device": device, "service": "doaction", "value": action},
         )
