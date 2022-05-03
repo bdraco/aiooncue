@@ -141,8 +141,6 @@ class Oncue:
             data = await self._get(endpoint, {"sessionkey": self._sessionkey, **params})
             if "code" not in data or data["code"] not in LOGIN_FAILED_CODES:
                 return data
-
-            self._auth_invalid = data["message"]
             await self.async_login()
 
         raise LoginFailedException(self._auth_invalid)
