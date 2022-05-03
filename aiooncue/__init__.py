@@ -78,7 +78,7 @@ ALL_DEVICES_PARAMETERS = json.dumps(
     [[NAME_TO_SENSOR_ID[name] for name in ALL_DETAILS_NAMES]], separators=(",", ":")
 )
 
-LOGIN_FAILED_CODES = {0, 1200}
+LOGIN_FAILED_CODES = {0: "Unknown", 1200: "Session Expired", 1207: "Invalid Password"}
 
 LOGIN_ENDPOINT = "/users/connect"
 
@@ -152,7 +152,7 @@ class Oncue:
         )
 
         if "sessionkey" not in login_data:
-            self._auth_invalid = login_data["message"]
+            self._auth_invalid = f"{login_data['message']} ({login_data.get('code')})"
             raise LoginFailedException(self._auth_invalid)
 
         self._sessionkey = login_data["sessionkey"]
