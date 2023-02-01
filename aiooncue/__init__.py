@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 import json
+import logging
 
 import aiohttp
 
@@ -82,6 +84,8 @@ LOGIN_FAILED_CODES = {0: "Unknown", 1200: "Session Expired", 1207: "Invalid Pass
 
 LOGIN_ENDPOINT = "/users/connect"
 
+_LOGGER = logging.getLogger(__name__)
+
 
 @dataclass
 class OncueSensor:
@@ -117,11 +121,12 @@ class Oncue:
         timeout: int = DEFAULT_REQUEST_TIMEOUT,
     ):
         """Create oncue async api object."""
-        self._websession = websession
+        self._websession = aiohttp.ClientSession()
         self._timeout = timeout
         self._username = username
         self._password = password
         self._auth_invalid = 0
+        self._error_count = 0
 
     async def _get(self, endpoint: str, params=None) -> dict:
         """Make a get request."""
@@ -147,14 +152,23 @@ class Oncue:
 
     async def async_login(self) -> None:
         """Call api to login"""
+        _LOGGER.info(f"async_login error count {self._error_count} ")
+        if self._error_count > 5:
+            _LOGGER.info(f"async_login - close session {self._error_count}")
+            await self._websession.close()
+            self._websession = aiohttp.ClientSession()
+            self._error_count = 0
+            _LOGGER.info("async_login - new session")
         login_data = await self._get(
             LOGIN_ENDPOINT, {"username": self._username, "password": self._password}
         )
 
         if "sessionkey" not in login_data:
-            self._auth_invalid = f"{login_data['message']} ({login_data.get('code')})"
+            self._error_count += 1
+            self._auth_invalid = f"{login_data['message']} ({login_data.get('code')} error_count {self._error_count}"
             raise LoginFailedException(self._auth_invalid)
 
+        self._error_count = 0
         self._sessionkey = login_data["sessionkey"]
 
     async def async_fetch_all(self) -> dict[str, OncueDevice]:
