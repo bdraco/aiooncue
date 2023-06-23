@@ -78,7 +78,13 @@ ALL_DEVICES_PARAMETERS = json.dumps(
     [[NAME_TO_SENSOR_ID[name] for name in ALL_DETAILS_NAMES]], separators=(",", ":")
 )
 
-LOGIN_FAILED_CODES = {0: "Unknown", 1200: "Session Expired", 1207: "Invalid Password"}
+LOGIN_FAILED_CODES = {
+    0: "Unknown",
+    1200: "Session Expired",
+    1202: "Invalid username",
+    1207: "Invalid Password",
+}
+INCORRECT_CREDENTIALS_CODES = {1207, 1202}
 
 LOGIN_ENDPOINT = "/users/connect"
 
@@ -102,8 +108,16 @@ class OncueDevice:
     sensors: dict[str, OncueSensor]
 
 
-class LoginFailedException(Exception):
+class OncueException(Exception):
+    """Base oncue exception."""
+
+
+class LoginFailedException(OncueException):
     """Login failed exception."""
+
+
+class ServiceFailedException(OncueException):
+    """Service failed exception."""
 
 
 class Oncue:
@@ -151,9 +165,15 @@ class Oncue:
             LOGIN_ENDPOINT, {"username": self._username, "password": self._password}
         )
 
-        if "sessionkey" not in login_data:
-            self._auth_invalid = f"{login_data['message']} ({login_data.get('code')})"
-            raise LoginFailedException(self._auth_invalid)
+        if "code" in login_data:
+            code = login_data["code"]
+            message = login_data.get("message", "no message")
+            if login_data["code"] in INCORRECT_CREDENTIALS_CODES:
+                self._auth_invalid = f"{message} ({code})"
+                raise LoginFailedException(self._auth_invalid)
+            raise ServiceFailedException(
+                f"Login failed with unknown error code: {code} ({message})"
+            )
 
         self._sessionkey = login_data["sessionkey"]
 

@@ -5,7 +5,7 @@
 import pytest
 
 
-from aiooncue import aiooncue
+from aiooncue import Oncue
 
 
 @pytest.fixture
