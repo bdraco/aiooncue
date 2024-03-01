@@ -78,13 +78,17 @@ ALL_DEVICES_PARAMETERS = json.dumps(
     [[NAME_TO_SENSOR_ID[name] for name in ALL_DETAILS_NAMES]], separators=(",", ":")
 )
 
+LOGIN_SESSION_EXPIRED = 1200
+LOGIN_INVALID_USERNAME = 1202
+LOGIN_INVALID_PASSWORD = 1207
+
 LOGIN_FAILED_CODES = {
     0: "Unknown",
-    1200: "Session Expired",
-    1202: "Invalid username",
-    1207: "Invalid Password",
+    LOGIN_SESSION_EXPIRED: "Session Expired",
+    LOGIN_INVALID_USERNAME: "Invalid username",
+    LOGIN_INVALID_PASSWORD: "Invalid Password",
 }
-INCORRECT_CREDENTIALS_CODES = {1207, 1202}
+INCORRECT_CREDENTIALS_CODES = { LOGIN_INVALID_PASSWORD, LOGIN_INVALID_USERNAME }
 
 LOGIN_ENDPOINT = "/users/connect"
 
@@ -136,6 +140,8 @@ class Oncue:
         self._username = username
         self._password = password
         self._auth_invalid = 0
+        self._login_success: bool = False
+        self._sessionkey = None
 
     async def _get(self, endpoint: str, params=None) -> dict:
         """Make a get request."""
@@ -149,7 +155,7 @@ class Oncue:
 
     async def _get_authenticated(self, endpoint: str, params=None) -> dict:
         if self._auth_invalid:
-            raise LoginFailedException(self._auth_invalid)
+            raise LoginFailedException("Authorization invalid will not retry - %s", self._auth_invalid)
 
         for _ in range(2):
             data = await self._get(endpoint, {"sessionkey": self._sessionkey, **params})
@@ -161,6 +167,7 @@ class Oncue:
 
     async def async_login(self) -> None:
         """Call api to login"""
+        self._sessionkey = None
         login_data = await self._get(
             LOGIN_ENDPOINT, {"username": self._username, "password": self._password}
         )
@@ -168,13 +175,17 @@ class Oncue:
         if "code" in login_data:
             code = login_data["code"]
             message = login_data.get("message", "no message")
-            if login_data["code"] in INCORRECT_CREDENTIALS_CODES:
-                self._auth_invalid = f"{message} ({code})"
+            if code in INCORRECT_CREDENTIALS_CODES:
+                # When the cloud service is unavailable it may return invalid username.
+                # If logged in with this user name, do not treat it as a fatal error.
+                if not self._login_success or code != LOGIN_INVALID_USERNAME:
+                    self._auth_invalid = f"{message} ({code})"
                 raise LoginFailedException(self._auth_invalid)
             raise ServiceFailedException(
                 f"Login failed with unknown error code: {code} ({message})"
             )
 
+        self._login_success = True
         self._sessionkey = login_data["sessionkey"]
 
     async def async_fetch_all(self) -> dict[str, OncueDevice]:
