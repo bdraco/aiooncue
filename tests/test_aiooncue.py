@@ -65,4 +65,4 @@ async def test_login():
         with pytest.raises(LoginFailedException):
             await api.async_login()
     assert api._sessionkey is None
-    assert api._auth_invalid == "bad username (1207)"
+    assert api._auth_invalid == f"bad username ({LOGIN_INVALID_PASSWORD})"
