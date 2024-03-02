@@ -88,7 +88,7 @@ LOGIN_FAILED_CODES = {
     LOGIN_INVALID_USERNAME: "Invalid username",
     LOGIN_INVALID_PASSWORD: "Invalid Password",
 }
-INCORRECT_CREDENTIALS_CODES = { LOGIN_INVALID_PASSWORD }
+INCORRECT_CREDENTIALS_CODES = {LOGIN_INVALID_PASSWORD}
 
 LOGIN_ENDPOINT = "/users/connect"
 
@@ -154,9 +154,9 @@ class Oncue:
 
     async def _get_authenticated(self, endpoint: str, params=None) -> dict:
         if self._auth_invalid:
-            raise LoginFailedException("Authorization invalid will not retry - " +
-                                       self._auth_invalid)
-
+            raise LoginFailedException(
+                f"Authorization invalid will not retry - {self._auth_invalid}"
+            )
         for _ in range(2):
             data = await self._get(endpoint, {"sessionkey": self._sessionkey, **params})
             if "code" not in data or data["code"] not in LOGIN_FAILED_CODES:
