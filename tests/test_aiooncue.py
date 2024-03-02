@@ -3,7 +3,7 @@
 
 """Tests for `aiooncue` package."""
 
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import patch
 import pytest
 
 import aiohttp
