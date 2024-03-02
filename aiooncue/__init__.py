@@ -140,7 +140,6 @@ class Oncue:
         self._username = username
         self._password = password
         self._auth_invalid = 0
-        self._sessionkey = None
 
     async def _get(self, endpoint: str, params=None) -> dict:
         """Make a get request."""
@@ -167,7 +166,6 @@ class Oncue:
 
     async def async_login(self) -> None:
         """Call api to login"""
-        self._sessionkey = None
         login_data = await self._get(
             LOGIN_ENDPOINT, {"username": self._username, "password": self._password}
         )

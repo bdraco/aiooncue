@@ -17,23 +17,6 @@ from aiooncue import (
     ServiceFailedException,
 )
 
-
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
-
-
 @pytest.mark.asyncio
 async def test_login():
     """Tests login"""
@@ -52,7 +35,6 @@ async def test_login():
         mock_get.return_value = {"code": LOGIN_INVALID_USERNAME, "sessionkey": "321"}
         with pytest.raises(ServiceFailedException):
             await api.async_login()
-    assert api._sessionkey is None
     assert api._auth_invalid == 0
 
     # Relogin and return an invalid password, this should make the auth_invalid
@@ -64,5 +46,4 @@ async def test_login():
         }
         with pytest.raises(LoginFailedException):
             await api.async_login()
-    assert api._sessionkey is None
     assert api._auth_invalid == f"bad username ({LOGIN_INVALID_PASSWORD})"
