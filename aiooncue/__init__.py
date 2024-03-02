@@ -88,7 +88,7 @@ LOGIN_FAILED_CODES = {
     LOGIN_INVALID_USERNAME: "Invalid username",
     LOGIN_INVALID_PASSWORD: "Invalid Password",
 }
-INCORRECT_CREDENTIALS_CODES = { LOGIN_INVALID_PASSWORD, LOGIN_INVALID_USERNAME }
+INCORRECT_CREDENTIALS_CODES = { LOGIN_INVALID_PASSWORD }
 
 LOGIN_ENDPOINT = "/users/connect"
 
@@ -140,7 +140,6 @@ class Oncue:
         self._username = username
         self._password = password
         self._auth_invalid = 0
-        self._login_success: bool = False
         self._sessionkey = None
 
     async def _get(self, endpoint: str, params=None) -> dict:
@@ -155,7 +154,8 @@ class Oncue:
 
     async def _get_authenticated(self, endpoint: str, params=None) -> dict:
         if self._auth_invalid:
-            raise LoginFailedException("Authorization invalid will not retry - %s", self._auth_invalid)
+            raise LoginFailedException("Authorization invalid will not retry - " +
+                                       self._auth_invalid)
 
         for _ in range(2):
             data = await self._get(endpoint, {"sessionkey": self._sessionkey, **params})
@@ -176,16 +176,12 @@ class Oncue:
             code = login_data["code"]
             message = login_data.get("message", "no message")
             if code in INCORRECT_CREDENTIALS_CODES:
-                # When the cloud service is unavailable it may return invalid username.
-                # If logged in with this user name, do not treat it as a fatal error.
-                if not self._login_success or code != LOGIN_INVALID_USERNAME:
-                    self._auth_invalid = f"{message} ({code})"
+                self._auth_invalid = f"{message} ({code})"
                 raise LoginFailedException(self._auth_invalid)
             raise ServiceFailedException(
                 f"Login failed with unknown error code: {code} ({message})"
             )
 
-        self._login_success = True
         self._sessionkey = login_data["sessionkey"]
 
     async def async_fetch_all(self) -> dict[str, OncueDevice]:
