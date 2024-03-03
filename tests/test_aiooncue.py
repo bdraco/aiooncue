@@ -21,8 +21,10 @@ from aiooncue import (
 async def test_login():
     """Tests login"""
 
+    # The code under test shouldn't access the client session
+    session: aiohttp.ClientSession = None
+
     # Successful Login
-    session = aiohttp.ClientSession()
     api = Oncue("username", "password", session)
     with patch.object(api, "_get") as mock_get:
         mock_get.return_value = {"sessionkey": "123"}
