@@ -78,13 +78,17 @@ ALL_DEVICES_PARAMETERS = json.dumps(
     [[NAME_TO_SENSOR_ID[name] for name in ALL_DETAILS_NAMES]], separators=(",", ":")
 )
 
+LOGIN_SESSION_EXPIRED = 1200
+LOGIN_INVALID_USERNAME = 1202
+LOGIN_INVALID_PASSWORD = 1207
+
 LOGIN_FAILED_CODES = {
     0: "Unknown",
-    1200: "Session Expired",
-    1202: "Invalid username",
-    1207: "Invalid Password",
+    LOGIN_SESSION_EXPIRED: "Session Expired",
+    LOGIN_INVALID_USERNAME: "Invalid username",
+    LOGIN_INVALID_PASSWORD: "Invalid Password",
 }
-INCORRECT_CREDENTIALS_CODES = {1207, 1202}
+INCORRECT_CREDENTIALS_CODES = {LOGIN_INVALID_PASSWORD}
 
 LOGIN_ENDPOINT = "/users/connect"
 
@@ -149,8 +153,9 @@ class Oncue:
 
     async def _get_authenticated(self, endpoint: str, params=None) -> dict:
         if self._auth_invalid:
-            raise LoginFailedException(self._auth_invalid)
-
+            raise LoginFailedException(
+                f"Authorization invalid will not retry - {self._auth_invalid}"
+            )
         for _ in range(2):
             data = await self._get(endpoint, {"sessionkey": self._sessionkey, **params})
             if "code" not in data or data["code"] not in LOGIN_FAILED_CODES:
@@ -168,7 +173,7 @@ class Oncue:
         if "code" in login_data:
             code = login_data["code"]
             message = login_data.get("message", "no message")
-            if login_data["code"] in INCORRECT_CREDENTIALS_CODES:
+            if code in INCORRECT_CREDENTIALS_CODES:
                 self._auth_invalid = f"{message} ({code})"
                 raise LoginFailedException(self._auth_invalid)
             raise ServiceFailedException(
