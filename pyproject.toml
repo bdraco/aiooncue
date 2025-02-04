@@ -1,3 +1,40 @@
+[build-system]
+requires = ["setuptools>=75.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiooncue"
+version="0.3.7"
+license = { text = "Apache-2.0" }
+description = "Async for Oncue"
+authors = [{ name = "J. Nick Koston", email = "nick@koston.org" }]
+requires-python = ">=3.5"
+keywords = ["aiooncue"]
+classifiers=[
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = [
+    "aiohttp"
+]
+dynamic = ["readme"]
+
+[project.urls]
+"Homepage" = "https://github.com/bdraco/aiooncue"
+
+[tool.setuptools.packages.find]
+include = ["aiooncue*"]
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.rst", "HISTORY.rst"] }
+
 [tool.black]
 target-version = ["py37"]
 exclude = 'generated'
