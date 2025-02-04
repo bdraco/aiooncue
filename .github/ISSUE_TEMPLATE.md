@@ -1,6 +1,6 @@
-* Async Oncue version:
-* Python version:
-* Operating System:
+- Async Oncue version:
+- Python version:
+- Operating System:
 
 ### Description
 

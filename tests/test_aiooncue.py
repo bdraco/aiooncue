@@ -6,8 +6,6 @@
 from unittest.mock import Mock, patch
 import pytest
 
-import aiohttp
-
 
 from aiooncue import (
     LOGIN_INVALID_PASSWORD,
@@ -16,6 +14,7 @@ from aiooncue import (
     Oncue,
     ServiceFailedException,
 )
+
 
 @pytest.mark.asyncio
 async def test_login():

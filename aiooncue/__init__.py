@@ -1,4 +1,5 @@
 """Top-level package for Async Oncue."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -139,7 +140,7 @@ class Oncue:
         self._timeout = timeout
         self._username = username
         self._password = password
-        self._auth_invalid = 0
+        self._auth_invalid: str = ""
 
     async def _get(self, endpoint: str, params=None) -> dict:
         """Make a get request."""
